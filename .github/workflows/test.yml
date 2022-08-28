@@ -6,6 +6,9 @@ on:
   #      - main
   #  pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: 23 17 * * 5,3
+
 
 env:
   UPLOAD_COWTRANSFER: true
@@ -17,6 +20,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: TG908/fork-sync@v1.1
+        with:
+          github_token: ${{ secrets.RELEASE_TOKEN }} # 这个 token action 会默认配置, 这里只需这样写就行
+          owner: takagen99 # fork 上游项目 owner
+          head: main # fork 上游项目需要同步的分支
+          base: main # 需要同步到本项目的目标分支
+
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -95,7 +105,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
-          name: 「 Tvbox 」
+          name: 「 Tvbox 」${{ steps.tag.outputs.release_tag }}
           tag_name: ${{ steps.tag.outputs.release_tag }}
           body_path: release.txt
           files: ${{ github.workspace }}/apk/*
